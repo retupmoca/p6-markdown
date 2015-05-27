@@ -74,12 +74,58 @@ class Text::Markdown::Image {
 }
 
 class Text::Markdown::Emphasis {
+    has $.text;
 }
 
 class Text::Markdown::Document {
     has @.items;
 
     method Str { @.items>>.Str.join }
+
+    method parse-inline($chunk) {
+        my @ret = $chunk;
+        my $changed = False;
+        repeat {
+            $changed = False;
+            my @tmp = @ret;
+            @ret = ();
+
+            for @tmp -> $_ is rw {
+                if $_ ~~ Str {
+                    # regex stolen shamlessly from masak's Text::Markdown
+                    if $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    # regex stolen shamlessly from masak's Text::Markdown
+                    elsif $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    # regex stolen shamlessly from masak's Text::Markdown
+                    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    else {
+                        @ret.push($_);
+                    }
+                }
+                else {
+                    @ret.push($_);
+                }
+            }
+
+        } until !$changed;
+
+        @ret;
+    }
 
     method item-from-chunk($chunk is rw) {
         if $chunk ~~ /^(\#+)/ {
@@ -103,7 +149,7 @@ class Text::Markdown::Document {
         }
         elsif $chunk {
             $chunk ~~ s:g/\n/ /;
-            return Text::Markdown::Paragraph.new(:items($chunk));
+            return Text::Markdown::Paragraph.new(:items(self.parse-inline($chunk)));
         }
     }
 
