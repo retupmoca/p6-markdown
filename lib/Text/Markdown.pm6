@@ -102,6 +102,18 @@ class Text::Markdown::Document {
 
     method Str { @.items>>.Str.join }
 
+    multi method render($class) {
+        my $c = $class;
+        $c = $class.new unless defined($class);
+
+        return $c.render(self);
+    }
+
+    multi method render() {
+        require Text::Markdown::to::HTML;
+        self.render(::('Text::Markdown::to::HTML'));
+    }
+
     method parse-inline($chunk) {
         my @ret = $chunk;
         my $changed = False;

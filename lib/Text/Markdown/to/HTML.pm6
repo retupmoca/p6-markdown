@@ -1,7 +1,12 @@
 use Text::Markdown;
 
 class Text::Markdown::to::HTML {
+    has $!document;
+
     multi method render(Text::Markdown::Document $d) {
+        unless $!document {
+            $!document = $d;
+        }
         my $ret;
         for $d.items {
             $ret ~= self.render($_);
@@ -54,7 +59,26 @@ class Text::Markdown::to::HTML {
         '<blockquote>' ~ $ret ~ '</blockquote>';
     }
 
-    multi method render(Text::Markdown::Link $r) { ... }
-    multi method render(Text::Markdown::Image $r) { ... }
-    multi method render(Text::Markdown::Emphasis $r) { ... }
+    multi method render(Text::Markdown::Link $r) { 
+        my $url = $r.url;
+        unless $url {
+            $url = $!document.references{$r.ref};
+        }
+        '<a href="' ~ $url ~ '">' ~ $r.text ~ '</a>';
+    }
+    multi method render(Text::Markdown::Image $r) { 
+        my $url = $r.url;
+        unless $url {
+            $url = $!document.references{$r.ref};
+        }
+        '<img src="' ~ $url ~ '" alt="' ~ $r.text ~ '" />';
+    }
+    multi method render(Text::Markdown::Emphasis $r) { 
+        if $r.level == 1 {
+            '<em>' ~ $r.text ~ '</em>';
+        }
+        else {
+            '<strong>' ~ $r.text ~ '</strong>';
+        }
+    }
 }
