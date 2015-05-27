@@ -272,3 +272,13 @@ class Text::Markdown::Document {
         #self.bless(:@items);
     }
 }
+
+=head2 Example Usage
+
+=begin pod
+
+    use Text::Markdown;
+    my $md = Text::Markdown.new($raw-md);
+    say $md.render;
+
+=end pod
