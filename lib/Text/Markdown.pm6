@@ -63,18 +63,37 @@ class Text::Markdown::Blockquote {
     has @.items;
 
     method Str {
-        die;
+        ...;
     }
 }
 
 class Text::Markdown::Link {
+    has $.url;
+    has $.text;
+    has $.ref;
+
+    method Str {
+        ...;
+    }
 }
 
 class Text::Markdown::Image {
+    has $.url;
+    has $.text;
+    has $.ref;
+
+    method Str {
+        ...;
+    }
 }
 
 class Text::Markdown::Emphasis {
     has $.text;
+    has $.level;
+
+    method Str {
+        ...;
+    }
 }
 
 class Text::Markdown::Document {
@@ -95,14 +114,14 @@ class Text::Markdown::Document {
                     # regex stolen shamlessly from masak's Text::Markdown
                     if $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1)));
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(2)));
                         @ret.push(~$2);
                         $changed = True;
                     }
                     # regex stolen shamlessly from masak's Text::Markdown
                     elsif $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1)));
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
                         @ret.push(~$2);
                         $changed = True;
                     }
@@ -115,31 +134,31 @@ class Text::Markdown::Document {
                     }
                     elsif $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Image.new());
+                        @ret.push(Text::Markdown::Image.new(:text(~$0), :url(~$1)));
                         @ret.push(~$2);
                         $changed = True;
                     }
                     elsif $_ ~~ s/ \! \[ (.+?) \] \[ (.*?) \] (.*) // {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Image.new());
+                        @ret.push(Text::Markdown::Image.new(:text(~$0), :ref(~$1 || ~$0)));
                         @ret.push(~$2);
                         $changed = True;
                     }
                     elsif $_ ~~ s/ \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Link.new());
+                        @ret.push(Text::Markdown::Link.new(:text(~$0), :url(~$1)));
                         @ret.push(~$2);
                         $changed = True;
                     }
                     elsif $_ ~~ s/ \[ (.+?) \] \[ (.*?) \] (.*) // {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Link.new());
+                        @ret.push(Text::Markdown::Link.new(:text(~$0), :ref(~$1 || ~$0)));
                         @ret.push(~$2);
                         $changed = True;
                     }
                     elsif $_ ~~ s/ \< (.+?) \> (.*) // {
                         @ret.push($_);
-                        @ret.push(Text::Markdown::Link.new());
+                        @ret.push(Text::Markdown::Link.new(:text(~$0), :url(~$0)));
                         @ret.push(~$1);
                         $changed = True;
                     }

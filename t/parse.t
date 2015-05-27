@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown;
 use Test;
 
-plan 46;
+plan 67;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -101,20 +101,58 @@ ok $p ~~ Text::Markdown::Paragraph, '...which is a single paragraph';
 is $p.items.elems, 18, 'with the right number of sub-items';
 
 is $p.items[0], 'This is a ', 'first text chunk';
+
 ok $p.items[1] ~~ Text::Markdown::Emphasis, 'first emphasis chunk';
+is $p.items[1].level, 1, '...with correct emphasis';
+is $p.items[1].text, 'paragraph', '...and text';
+
 is $p.items[2], ' with ', 'second text chunk';
+
 ok $p.items[3] ~~ Text::Markdown::Emphasis, 'second emphasis chunk';
+is $p.items[3].level, 2, '...with correct emphasis';
+is $p.items[3].text, 'many', '...and text';
+
 is $p.items[4], ' ', 'third text chunk';
+
 ok $p.items[5] ~~ Text::Markdown::Code, 'first code chunk';
+is $p.items[5].text, 'different', '...with correct text';
+
 is $p.items[6], ' ', 'fourth text chunk';
+
 ok $p.items[7] ~~ Text::Markdown::Code, 'second code chunk';
+is $p.items[7].text, 'inline` elements', '...with correct text';
+
 is $p.items[8], '. ', 'fifth text chunk';
+
 ok $p.items[9] ~~ Text::Markdown::Link, 'first link';
+is $p.items[9].url, 'http://google.com', '...with correct link';
+is $p.items[9].text, 'Links', '...with correct text';
+ok !$p.items[9].ref, '...with correct ref';
+
 is $p.items[10], ', for ', 'sixth text chunk';
+
 ok $p.items[11] ~~ Text::Markdown::Link, 'second link';
+ok !$p.items[11].url, '...with correct link';
+is $p.items[11].text, 'example', '...with correct text';
+is $p.items[11].ref, 'example', '...with correct ref';
+
 is $p.items[12], ', as well as ', 'seventh text chunk';
+
 ok $p.items[13] ~~ Text::Markdown::Image, 'first image';
+is $p.items[13].url, '/bad/path.jpg', '...with correct link';
+is $p.items[13].text, 'Images', '...with correct text';
+ok !$p.items[13].ref, '...with correct ref';
+
 is $p.items[14], ' (including ', 'eighth text chunk';
+
 ok $p.items[15] ~~ Text::Markdown::Image, 'second image';
+ok !$p.items[15].url, '...with correct link';
+is $p.items[15].text, 'Reference', '...with correct text';
+is $p.items[15].ref, 'Reference', '...with correct ref';
+
 is $p.items[16], ' style) ', 'ninth text chunk';
+
 ok $p.items[17] ~~ Text::Markdown::Link, 'third link';
+is $p.items[17].url, 'http://google.com', '...with correct link';
+is $p.items[17].text, 'http://google.com', '...with correct text';
+ok !$p.items[17].ref, '...with correct ref';
