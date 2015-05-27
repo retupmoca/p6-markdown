@@ -113,6 +113,36 @@ class Text::Markdown::Document {
                         @ret.push(~$2);
                         $changed = True;
                     }
+                    elsif $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Image.new());
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    elsif $_ ~~ s/ \! \[ (.+?) \] \[ (.*?) \] (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Image.new());
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    elsif $_ ~~ s/ \[ (.+?) \] \( (.+?) \) (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Link.new());
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    elsif $_ ~~ s/ \[ (.+?) \] \[ (.*?) \] (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Link.new());
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    elsif $_ ~~ s/ \< (.+?) \> (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Link.new());
+                        @ret.push(~$1);
+                        $changed = True;
+                    }
                     else {
                         @ret.push($_);
                     }
@@ -124,7 +154,7 @@ class Text::Markdown::Document {
 
         } until !$changed;
 
-        @ret;
+        @ret.grep({ $_ });
     }
 
     method item-from-chunk($chunk is rw) {
@@ -146,6 +176,10 @@ class Text::Markdown::Document {
         }
         elsif $chunk.lines == 1 && $chunk ~~ /^\-\-\-/ {
             return Text::Markdown::Rule.new;
+        }
+        elsif all($chunk.lines.map({ so $_ ~~ /^\[ .+? \]\: .+/ })) {
+            # link/image references NYI
+            return '';
         }
         elsif $chunk {
             $chunk ~~ s:g/\n/ /;
@@ -190,6 +224,8 @@ class Text::Markdown::Document {
         $chunk ~~ s/^\s+\-\s+//;
         @list-items.push(self.new($chunk)) if $chunk && $in-list;
         @items.push(Text::Markdown::List.new(:items(@list-items))) if @list-items;
+
+        @items .= grep({ $_ });
 
         self.bless(:@items);
     }

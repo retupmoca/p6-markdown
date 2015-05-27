@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown;
 use Test;
 
-plan 45;
+plan 46;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -86,7 +86,7 @@ is $li.items[0].items[0], 'Block List Two', '...with correct data';
 $text = q:to/TEXT/;
 This is a *paragraph* with **many** `different` ``inline` elements``.
 [Links](http://google.com), for [example][], as well as ![Images](/bad/path.jpg)
-(including ![Reference][] style)
+(including ![Reference][] style) <http://google.com>
 
 [example]: http://example.com
 [Reference]: /another/bad/image.jpg
@@ -98,7 +98,7 @@ is $document.items.elems, 1, 'has correct number of items';
 my $p = $document.items[0];
 ok $p ~~ Text::Markdown::Paragraph, '...which is a single paragraph';
 
-ok $p.items == 17, 'with the right number of sub-items';
+is $p.items.elems, 18, 'with the right number of sub-items';
 
 is $p.items[0], 'This is a ', 'first text chunk';
 ok $p.items[1] ~~ Text::Markdown::Emphasis, 'first emphasis chunk';
@@ -116,4 +116,5 @@ is $p.items[12], ', as well as ', 'seventh text chunk';
 ok $p.items[13] ~~ Text::Markdown::Image, 'first image';
 is $p.items[14], ' (including ', 'eighth text chunk';
 ok $p.items[15] ~~ Text::Markdown::Image, 'second image';
-is $p.items[16], ' style)', 'ninth text chunk';
+is $p.items[16], ' style) ', 'ninth text chunk';
+ok $p.items[17] ~~ Text::Markdown::Link, 'third link';
