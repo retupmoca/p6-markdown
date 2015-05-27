@@ -90,12 +90,16 @@ class Text::Markdown::Document {
                                                :level($level));
         }
         elsif all($chunk.lines.map({ so $_ ~~ /^\s\s\s\s/ })) {
+            $chunk ~~ s:g/^^\s\s\s\s//;
             return Text::Markdown::CodeBlock.new(:text($chunk));
         }
         elsif all($chunk.lines.map({ so $_ ~~ /^\>\s/ })) {
-            $chunk ~~ s/^\>\s+//;
+            $chunk ~~ s:g/^^\>\s+//;
             return Text::Markdown::Blockquote.new(
                                       :items(self.new($chunk).items));
+        }
+        elsif $chunk.lines == 1 && $chunk ~~ /^\-\-\-/ {
+            return Text::Markdown::Rule.new;
         }
         elsif $chunk {
             $chunk ~~ s:g/\n/ /;
