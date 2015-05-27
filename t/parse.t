@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown;
 use Test;
 
-plan 67;
+plan 70;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -156,3 +156,7 @@ ok $p.items[17] ~~ Text::Markdown::Link, 'third link';
 is $p.items[17].url, 'http://google.com', '...with correct link';
 is $p.items[17].text, 'http://google.com', '...with correct text';
 ok !$p.items[17].ref, '...with correct ref';
+
+is $document.references.elems, 2, 'got correct reference count';
+is $document.references<example>, 'http://example.com', 'first ref';
+is $document.references<Reference>, '/another/bad/image.jpg', 'second ref';

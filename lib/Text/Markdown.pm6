@@ -98,6 +98,7 @@ class Text::Markdown::Emphasis {
 
 class Text::Markdown::Document {
     has @.items;
+    has %.references;
 
     method Str { @.items>>.Str.join }
 
@@ -197,8 +198,11 @@ class Text::Markdown::Document {
             return Text::Markdown::Rule.new;
         }
         elsif all($chunk.lines.map({ so $_ ~~ /^\[ .+? \]\: .+/ })) {
-            # link/image references NYI
-            return '';
+            for $chunk.lines {
+                $_ ~~ /^\[ (.+?) \]\: \s* (.+)/;
+                %!references{$0} = $1;
+            }
+            return ''
         }
         elsif $chunk {
             $chunk ~~ s:g/\n/ /;
@@ -207,6 +211,12 @@ class Text::Markdown::Document {
     }
 
     multi method new($text) {
+        self.bless(:$text);
+    }
+
+    submethod BUILD(:$text) {
+        return unless $text;
+
         my @lines = $text.lines;
 
         my $chunk = '';
@@ -246,6 +256,7 @@ class Text::Markdown::Document {
 
         @items .= grep({ $_ });
 
-        self.bless(:@items);
+        @!items = @items;
+        #self.bless(:@items);
     }
 }
