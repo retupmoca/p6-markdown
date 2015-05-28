@@ -109,11 +109,6 @@ class Text::Markdown::Document {
         return $c.render(self);
     }
 
-    multi method render() {
-        require Text::Markdown::to::HTML;
-        self.render(::('Text::Markdown::to::HTML'));
-    }
-
     method parse-inline($chunk) {
         my @ret = $chunk;
         my $changed = False;
@@ -191,8 +186,7 @@ class Text::Markdown::Document {
 
     method item-from-chunk($chunk is rw) {
         if $chunk ~~ /^(\#+)/ {
-            my $level = $0.chars;
-            $chunk ~~ s/^\#+\s+//;
+            my $level = $0.chars; $chunk ~~ s/^\#+\s+//;
             $chunk ~~ s/\s+\#+$//;
             return Text::Markdown::Heading.new(:text($chunk),
                                                :level($level));
@@ -278,7 +272,7 @@ class Text::Markdown::Document {
 =begin pod
 
     use Text::Markdown;
-    my $md = Text::Markdown.new($raw-md);
+    my $md = Text::Markdown::Document.new($raw-md);
     say $md.render;
 
 =end pod
