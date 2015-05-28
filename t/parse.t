@@ -1,5 +1,5 @@
 use v6;
-use Text::Markdown;
+use Text::Markdown::Document;
 use Test;
 
 plan 70;

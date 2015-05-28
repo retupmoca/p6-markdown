@@ -1,4 +1,4 @@
-use Text::Markdown;
+use Text::Markdown::Document;
 
 class Text::Markdown::to::HTML {
     has $!document;
