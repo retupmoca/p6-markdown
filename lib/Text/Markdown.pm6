@@ -272,7 +272,8 @@ class Text::Markdown::Document {
 =begin pod
 
     use Text::Markdown;
+    use Text::Markdown::to::HTML;
     my $md = Text::Markdown::Document.new($raw-md);
-    say $md.render;
+    say $md.render(Text::Markdown::to::HTML);
 
 =end pod
