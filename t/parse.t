@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 70;
+plan 74;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -47,14 +47,18 @@ $text = q:to/TEXT/;
 
  -  Block List Two
 
+1. ol One
+2. ol Two
+
 TEXT
 
 $document = Text::Markdown::Document.new($text);
 ok $document ~~ Text::Markdown::Document, 'Able to parse';
-is $document.items.elems, 4, 'has correct number of items';
+is $document.items.elems, 5, 'has correct number of items';
 
 my $li = $document.items[0];
 ok $li ~~ Text::Markdown::List, 'first element is a list';
+ok !$li.numbered, '...that is unordered';
 ok $li.items == 2, '...with two items';
 
 # not sure how I want to represent simple elements, since I need to support
@@ -82,6 +86,15 @@ ok $li.items == 2, '...with two items';
 $li = $li.items[1];
 ok $li ~~ Text::Markdown::Document, '...with complex elements';
 is $li.items[0].items[0], 'Block List Two', '...with correct data';
+
+$li = $document.items[4];
+todo 'NYI';
+ok $li ~~ Text::Markdown::List, 'fifth element is a list';
+skip 'Need a list first', 2;
+if 0 {
+ok $li.numbered, '...which is ordered';
+ok $li.items == 2, '...with two items';
+}
 
 $text = q:to/TEXT/;
 This is a *paragraph* with **many** `different` ``inline` elements``.
