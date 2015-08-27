@@ -47,8 +47,8 @@ $text = q:to/TEXT/;
 
  -  Block List Two
 
-1. ol One
-2. ol Two
+ 1. ol One
+ 2. ol Two
 
 TEXT
 
@@ -88,13 +88,9 @@ ok $li ~~ Text::Markdown::Document, '...with complex elements';
 is $li.items[0].items[0], 'Block List Two', '...with correct data';
 
 $li = $document.items[4];
-todo 'NYI';
 ok $li ~~ Text::Markdown::List, 'fifth element is a list';
-skip 'Need a list first', 2;
-if 0 {
 ok $li.numbered, '...which is ordered';
 ok $li.items == 2, '...with two items';
-}
 
 $text = q:to/TEXT/;
 This is a *paragraph* with **many** `different` ``inline` elements``.

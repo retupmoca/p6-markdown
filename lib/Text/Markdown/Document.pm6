@@ -228,6 +228,7 @@ class Text::Markdown::Document {
         my $chunk = '';
         my @items;
         my $in-list;
+        my $list-ordered;
         my @list-items;
         for @lines -> $l {
             if !$in-list && $l ~~ /^\s*$/ {
@@ -236,19 +237,48 @@ class Text::Markdown::Document {
             }
             else {
                 if $l ~~ /^\s+\-\s/ {
+                    if $in-list && $list-ordered {
+                        $chunk ~~ s/^\s+\d+\.?\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                        @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
+                        @list-items = ();
+                    }
                     $in-list = True;
+                    $list-ordered = False;
                     if $chunk {
                         $chunk ~~ s/^\s+\-\s+//;
                         @list-items.push(self.new($chunk));
                         $chunk = '';
                     }
                 }
+                elsif $l ~~ /^\s+\d+\.?\s/ {
+                    if $in-list && !$list-ordered {
+                        $chunk ~~ s/^\s+\-\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                        @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
+                        @list-items = ();
+                    }
+                    $in-list = True;
+                    $list-ordered = True;
+                    if $chunk {
+                        $chunk ~~ s/^\s+\d+\.?\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                    }
+                }
                 elsif $in-list && $l ~~ /^\S/ {
                     $in-list = False;
-                    $chunk ~~ s/^\s+\-\s+//;
+                    if $list-ordered {
+                        $chunk ~~ s/^\s+\d+\.?\s+//;
+                    }
+                    else {
+                        $chunk ~~ s/^\s+\-\s+//;
+                    }
                     @list-items.push(self.new($chunk));
                     $chunk = '';
-                    @items.push(Text::Markdown::List.new(:items(@list-items)));
+                    @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
                     @list-items = ();
                 }
                 $chunk ~= "\n" if $chunk;
@@ -256,9 +286,14 @@ class Text::Markdown::Document {
             }
         }
         @items.push(self.item-from-chunk($chunk)) if $chunk && !$in-list;
-        $chunk ~~ s/^\s+\-\s+//;
+        if $list-ordered {
+            $chunk ~~ s/^\s+\d+\.?\s+//;
+        }
+        else {
+            $chunk ~~ s/^\s+\-\s+//;
+        }
         @list-items.push(self.new($chunk)) if $chunk && $in-list;
-        @items.push(Text::Markdown::List.new(:items(@list-items))) if @list-items;
+        @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered))) if @list-items;
 
         @items .= grep({ $_ });
 
