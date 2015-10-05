@@ -191,8 +191,8 @@ class Text::Markdown::Document {
             return Text::Markdown::Heading.new(:text($chunk),
                                                :level($level));
         }
-        elsif all($chunk.lines.map({ so $_ ~~ /^\s\s\s\s/ })) {
-            $chunk ~~ s:g/^^\s\s\s\s//;
+        elsif all($chunk.lines.map({ so $_ ~~ /^\h ** 4/ })) {
+            $chunk ~~ s:g/^^\h ** 4//;
             return Text::Markdown::CodeBlock.new(:text($chunk));
         }
         elsif all($chunk.lines.map({ so $_ ~~ /^\>\s/ })) {
@@ -232,7 +232,7 @@ class Text::Markdown::Document {
         my @list-items;
         for @lines -> $l {
             if !$in-list && $l ~~ /^\s*$/ {
-                @items.push(self.item-from-chunk($chunk));
+                @items.push(self.item-from-chunk($chunk)) if $chunk.chars;
                 $chunk = '';
             }
             else {
