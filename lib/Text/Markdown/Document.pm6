@@ -77,6 +77,14 @@ class Text::Markdown::Link {
     }
 }
 
+class Text::Markdown::EmailLink {
+  has $.url;
+
+  method Str {
+    '<' ~ $.url ~ '>';
+  }
+}
+
 class Text::Markdown::Image {
     has $.url;
     has $.text;
@@ -94,6 +102,22 @@ class Text::Markdown::Emphasis {
     method Str {
         ...;
     }
+}
+
+class Text::Markdown::HtmlBlock {
+  has @.items;
+
+  method Str {
+    @.items>>.Str.join;
+  }
+}
+
+class Text::Markdown::HtmlTag {
+  has $.tag;
+
+  method Str {
+    ...
+  }
 }
 
 class Text::Markdown::Document {
@@ -164,9 +188,21 @@ class Text::Markdown::Document {
                         @ret.push(~$2);
                         $changed = True;
                     }
-                    elsif $_ ~~ s/ \< (.+?) \> (.*) // {
+                    elsif $_ ~~ s/ \< ( .+? \:\/\/ .*? ) \> (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Link.new(:text(~$0), :url(~$0)));
+                        @ret.push(~$1);
+                        $changed = True;
+                    }
+                    elsif $_ ~~ s/ \< ( .*? \@ .*? ) \> (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::EmailLink.new(:url(~$0)));
+                        @ret.push(~$1);
+                        $changed = True;
+                    }
+                    elsif $_ ~~ s/ ( \< .+? \> ) (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::HtmlTag.new(:tag(~$0)));
                         @ret.push(~$1);
                         $changed = True;
                     }
@@ -212,7 +248,16 @@ class Text::Markdown::Document {
         }
         elsif $chunk {
             $chunk ~~ s:g/\n/ /;
-            return Text::Markdown::Paragraph.new(:items(self.parse-inline($chunk)));
+            my @items = self.parse-inline($chunk);
+            if @items[0] ~~ Text::Markdown::HtmlTag &&
+                @items[*-1] ~~ Text::Markdown::HtmlTag
+            {
+                return Text::Markdown::HtmlBlock.new(:@items);
+            }
+            else
+            {
+                return Text::Markdown::Paragraph.new(:@items);
+            }
         }
     }
 

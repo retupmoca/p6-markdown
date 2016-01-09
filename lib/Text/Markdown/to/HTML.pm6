@@ -66,6 +66,11 @@ class Text::Markdown::to::HTML {
         }
         '<a href="' ~ $url ~ '">' ~ $r.text ~ '</a>';
     }
+
+    multi method render(Text::Markdown::EmailLink $r) {
+      '< href="mailto:' ~ $r.url ~ '">' ~ $r.url ~ '</a>';
+    }
+
     multi method render(Text::Markdown::Image $r) { 
         my $url = $r.url;
         unless $url {
@@ -81,4 +86,13 @@ class Text::Markdown::to::HTML {
             '<strong>' ~ $r.text ~ '</strong>';
         }
     }
+
+    multi method render(Text::Markdown::HtmlBlock $r) {
+      $r.items.map( -> $child { self.render($child) } ).join("");
+    }
+
+    multi method render(Text::Markdown::HtmlTag $r) {
+      $r.tag;
+    }
 }
+
