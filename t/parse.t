@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 74;
+plan 159;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -169,3 +169,106 @@ ok !$p.items[17].ref, '...with correct ref';
 is $document.references.elems, 2, 'got correct reference count';
 is $document.references<example>, 'http://example.com', 'first ref';
 is $document.references<Reference>, '/another/bad/image.jpg', 'second ref';
+
+$text = q:to/TEXT/;
+This one tests links like <http://example.com> or <http://a> or
+<http://a/><https://b>, as well as mail addresses like
+<example@example.com> or <camelia.is.the.best@perl6.org>.
+
+Finally, we test inline html elements like <span class="a"><b>example</b></span>
+or block elements like
+
+<table>
+  <tr>
+    <td>A</td><td>B</td>
+  </tr>
+  <tr>
+    <td>X</td>
+    <td>Y</td>
+  </tr>
+</table>
+TEXT
+
+$document = Text::Markdown::Document.new($text);
+ok $document ~~ Text::Markdown::Document, 'Able to parse';
+is $document.items.elems, 3, 'has correct number of items';
+$p = $document.items[0];
+ok $p ~~ Text::Markdown::Paragraph, 'first block is a paragraph';
+is $p.items.elems, 12, 'correct number of elements in paragraph';
+is $p.items[0], 'This one tests links like ', 'starts with some text';
+ok $p.items[1] ~~ Text::Markdown::Link, 'inline link';
+is $p.items[1].url, 'http://example.com', 'inline link has correct url';
+is $p.items[1].text, 'http://example.com', 'inline link has correct text';
+ok !$p.items[1].ref, 'inline link has no ref';
+is $p.items[2], ' or ', 'separator word between links.';
+ok $p.items[3] ~~ Text::Markdown::Link, 'inline link no domain name';
+is $p.items[3].url, 'http://a', 'inline link that is not a domain name has correct url';
+is $p.items[3].text, 'http://a', 'inline link that is not a domain name has correct text';
+ok !$p.items[3].ref, 'inline link has no ref';
+is $p.items[4], ' or ', 'separator word between links.';
+ok $p.items[5] ~~ Text::Markdown::Link, 'inline link no domain name';
+is $p.items[5].url, 'http://a/', 'inline link that is not a domain name has correct url';
+is $p.items[5].text, 'http://a/', 'inline link that is not a domain name has correct text';
+ok !$p.items[5].ref, 'inline link has no ref';
+ok $p.items[6] ~~ Text::Markdown::Link, 'inline link no domain name';
+is $p.items[6].url, 'https://b', 'inline link that is not a domain name has correct url';
+is $p.items[6].text, 'https://b', 'inline link that is not a domain name has correct text';
+ok !$p.items[6].ref, 'inline link has no ref';
+is $p.items[7], ', as well as mail addresses like ', 'separator text between links.';
+ok $p.items[8] ~~ Text::Markdown::EmailLink, 'inline link to mail address';
+is $p.items[8].url, 'example@example.com', 'email link contains correct url';
+is $p.items[9], ' or ', 'separator text between links.';
+ok $p.items[10] ~~ Text::Markdown::EmailLink, 'inline link to mail address';
+is $p.items[10].url, 'camelia.is.the.best@perl6.org', 'email link contains correct url';
+is $p.items[11], '.', 'text at end of paragraph';
+
+$p = $document.items[1];
+ok $p ~~ Text::Markdown::Paragraph, 'second block is a paragraph';
+is $p.items.elems, 7, 'second paragraph contains correct number of elements';
+is $p.items[0], 'Finally, we test inline html elements like ', 'text before html tags';
+ok $p.items[1] ~~ Text::Markdown::HtmlTag, 'tags are parsed';
+is $p.items[1].tag, '<span class="a">', 'tag content is correct';
+ok $p.items[2] ~~ Text::Markdown::HtmlTag, 'tags are parsed';
+is $p.items[2].tag, '<b>', 'tag content is correct';
+is $p.items[3], 'example', 'text between tags';
+ok $p.items[4] ~~ Text::Markdown::HtmlTag, 'tags are parsed';
+is $p.items[4].tag, '</b>', 'tag content is correct';
+ok $p.items[5] ~~ Text::Markdown::HtmlTag, 'tags are parsed';
+is $p.items[5].tag, '</span>', 'tag content is correct';
+is $p.items[6], ' or block elements like', 'text before html tags';
+
+$p = $document.items[2];
+is $p.items.elems, 26, 'correct number of elements in html block';
+ok $p ~~ Text::Markdown::HtmlBlock, 'third block is an html block';
+my %tags =
+  0 => '<table>',
+  2 => '<tr>',
+  4 => '<td>',
+  6 => '</td>',
+  7 => '<td>',
+  9 => '</td>',
+  11 => '</tr>',
+  13 => '<tr>',
+  15 => '<td>',
+  17 => '</td>',
+  19 => '<td>',
+  21 => '</td>',
+  23 => '</tr>',
+  25 => '</table>';
+for %tags.kv -> $position, $value {
+  ok $p.items[$position] ~~ Text::Markdown::HtmlTag, 'html tags parsed correctly';
+  is $p.items[$position].tag, $value, 'html tag contents correct';
+}
+my %strings =
+  5 => 'A',
+  8 => 'B',
+  16 => 'X',
+  20 => 'Y';
+for %strings.kv -> $position, $value {
+  is $p.items[$position], $value, 'text parts in html block correct';
+}
+my @spaces = 1, 3, 10, 12, 14, 18, 22, 24;
+for @spaces -> $position {
+  ok $p.items[$position] ~~ /\s+/, 'white spaces detected correctly';
+}
+
