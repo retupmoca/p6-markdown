@@ -30,6 +30,13 @@ our sub parse-markdown($text) is export {
     Text::Markdown.new($text);
 }
 
+our sub parse-markdown-from-file(Str $filename) is export {
+  die "Can't locate $filename !" unless $filename.IO ~~ :e;
+
+  my Str $text = slurp $filename;
+  Text::Markdown.new($text);
+}
+
 
 =head2 Example Usage
 
@@ -44,5 +51,10 @@ or
     use Text::Markdown;
     my $md = parse-markdown($raw-md);
     say $md.to_html;
+
+or, using a file :
+
+    use Text::Markdown;
+    my $md = parse-markdown-from-file($filename);
 
 =end pod
