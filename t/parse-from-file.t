@@ -7,7 +7,7 @@ use Text::Markdown;
 
 plan 2;
 
-my Str $filename = 'text.md';
+my Str $filename = 't/text.md';
 my $md = parse-markdown-from-file($filename);
 
 ok $md ~~ Text::Markdown;
