@@ -5,7 +5,6 @@ class Text::Markdown::Paragraph {
     method Str { @.items>>.Str.join ~ "\n\n" }
 
     method items-of-type( Str $type ) {
-	dd self.items;
 	return  self.items.grep(  { .^name ~~ / «$type» / } );
     }
 }
