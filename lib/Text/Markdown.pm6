@@ -57,4 +57,16 @@ or, using a file :
     use Text::Markdown;
     my $md = parse-markdown-from-file($filename);
 
+Extract references
+
+    say $md.references
+
+Or referencing something
+
+    say $md.references<example>    
+
+Filter elements of a certain type
+
+    say $md.items-of-type("Paragraph")    
+
 =end pod

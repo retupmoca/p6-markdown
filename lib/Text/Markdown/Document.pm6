@@ -3,6 +3,11 @@ class Text::Markdown::Paragraph {
 
     # TODO: wrapping?
     method Str { @.items>>.Str.join ~ "\n\n" }
+
+    method items-of-type( Str $type ) {
+	dd self.items;
+	return  self.items.grep(  { .^name ~~ / «$type» / } );
+    }
 }
 
 class Text::Markdown::Code {
@@ -131,6 +136,10 @@ class Text::Markdown::Document {
         $c = $class.new unless defined($class);
 
         return $c.render(self);
+    }
+
+    method items-of-type( Str $type ) {
+	return  self.items.grep(  { .^name ~~ / «$type» / } );
     }
 
     method parse-inline($chunk) {
