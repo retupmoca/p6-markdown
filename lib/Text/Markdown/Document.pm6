@@ -152,21 +152,7 @@ class Text::Markdown::Document {
             for @tmp -> $_ is rw {
                 if $_ ~~ Str {
                     # regex stolen shamlessly from masak's Text::Markdown
-                    if $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(2)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-                    # regex stolen shamlessly from masak's Text::Markdown
-                    elsif $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-                    # regex stolen shamlessly from masak's Text::Markdown
-                    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
+                    if $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Code.new(:text(~$1)));
                         @ret.push(~$2);
@@ -214,6 +200,20 @@ class Text::Markdown::Document {
                         @ret.push(~$1);
                         $changed = True;
                     }
+		    elsif $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(2)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    elsif  $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    # regex stolen shamlessly from masak's Text::Markdown
+
                     else {
                         @ret.push($_);
                     }

@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 3;
+plan 4;
 
 my $text = q:to/TEXT/;
 this character belongs to this
@@ -18,5 +18,5 @@ ok $p ~~ Text::Markdown::Paragraph, 'It is a Paragraph';
 
 dd $p.items;
 
-is $p.items.elems, 2, "Slurped link correctly";
+is $p.items.elems, 3, "Slurped link correctly";
 			  
