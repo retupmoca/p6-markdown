@@ -150,9 +150,6 @@ class Text::Markdown::Document {
             @ret = ();
 
             for @tmp -> $_ is rw {
-		say "Loop ";
-		dd $_;
-		dd @ret;
                 if $_ ~~ Str {
                     # regex stolen shamlessly from masak's Text::Markdown
                     if $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
@@ -162,12 +159,12 @@ class Text::Markdown::Document {
                         $changed = True;
                     }
                     # regex stolen shamlessly from masak's Text::Markdown
-                    # elsif $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
-                    #     @ret.push($_);
-                    #     @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
-                    #     @ret.push(~$2);
-                    #     $changed = True;
-                    # }
+                    elsif $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
                     # regex stolen shamlessly from masak's Text::Markdown
                     elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
                         @ret.push($_);
@@ -187,33 +184,19 @@ class Text::Markdown::Document {
                         @ret.push(~$2);
                         $changed = True;
                     }
-                    elsif $_ ~~ s/ \[ (<-[ \] ]> +?) \]  \( ( http <-[ ) ]> +? ) \) // {
-			say "Link 0";
-			say $_;
+                    elsif $_ ~~ s/ \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Link.new(:text(~$0), :url(~$1)));
                         @ret.push(~$2);
                         $changed = True;
                     }
-		    elsif $_ ~~ s/ \[ (.+?) \] \[ (.*?) \] (.*) // {
-			say "Link 0";
-			say $_;
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Link.new(:text(~$0), :ref(~$1 || ~$0)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
                     elsif $_ ~~ s/ \[ (.+?) \] \[ (.*?) \] (.*) // {
-			say "Link 0";
-			say $_;
                         @ret.push($_);
                         @ret.push(Text::Markdown::Link.new(:text(~$0), :ref(~$1 || ~$0)));
                         @ret.push(~$2);
                         $changed = True;
                     }
                     elsif $_ ~~ s/ \< ( .+? \:\/\/ .*? ) \> (.*) // {
-		    	say "Link 0";
-			say $_;
                         @ret.push($_);
                         @ret.push(Text::Markdown::Link.new(:text(~$0), :url(~$0)));
                         @ret.push(~$1);
