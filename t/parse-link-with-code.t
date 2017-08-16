@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 3;
+plan 4;
 
 my $text = q:to/TEXT/;
 [`grep`](https://docs.perl6.org/routine/grep) is
@@ -15,7 +15,7 @@ is $document.items.elems, 1, 'has correct number of items';
 
 my $p = $document.items[0];
 ok $p ~~ Text::Markdown::Paragraph, 'It is a Paragraph';
-
-dd $p.items;
+is $p.items[0] ~~ Text::Markdown::Link, True, "First element is a link";
+# dd $p.items;
 
 
