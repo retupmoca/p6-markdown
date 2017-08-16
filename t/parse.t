@@ -32,7 +32,7 @@ ok $document.items[2] ~~ Text::Markdown::Rule, 'third element is a rule';
 ok $document.items[3] ~~ Text::Markdown::Paragraph, 'fourth element is a paragraph';
 is $document.items[3].items[0], 'It has two paragraphs.', '...with the right data';
 
-is $document.items-of-type("Paragraph").elems, 2, "Correct number of pagraphs";
+is $document.items-of-type("Paragraph").elems, 2, "Correct number of paragraphs";
 
 ## next text with lists
 
