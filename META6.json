@@ -1,7 +1,7 @@
 {
     "perl" : "6.*",
     "name" : "Text::Markdown",
-    "version" : "1.0.0",
+    "version" : "1.0.1",
     "author" : "github:retupmoca",
     "description" : "Markdown parser / HTML generator",
     "depends" : [],
