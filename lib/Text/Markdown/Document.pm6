@@ -1,3 +1,5 @@
+use HTML::Escape;
+
 class Text::Markdown::Paragraph {
     has @.items;
 
@@ -234,6 +236,14 @@ class Text::Markdown::Document {
             return Text::Markdown::Blockquote.new(
                                       :items(self.new($chunk).items));
         }
+        elsif $chunk.lines.first ~~ /^^'`'+/ && $chunk.lines.tail ~~ /^^'`'+/ {
+            if $chunk.lines.elems > 1 {
+                $chunk ~~ s:g/^^'`'+(\n || $$ )//;
+                return Text::Markdown::CodeBlock.new(:text(escape-html($chunk.trim)));
+            } else {
+                return self.parse-inline($chunk);
+            }
+        }
         elsif $chunk.lines == 1 && $chunk ~~ /^\-\-\-/ {
             return Text::Markdown::Rule.new;
         }
@@ -271,15 +281,16 @@ class Text::Markdown::Document {
         my $chunk = '';
         my @items;
         my $in-list;
+        my $in-fenced = False;
         my $list-ordered;
         my @list-items;
         for @lines -> $l {
-            if !$in-list && $l ~~ /^\s*$/ {
+            if !$in-list && !$in-fenced && $l ~~ /^\s*$/ {
                 @items.push(self.item-from-chunk($chunk)) if $chunk.chars;
                 $chunk = '';
             }
             else {
-                if $l ~~ /^\s+\-\s/ {
+                if !$in-fenced && $l ~~ /^\s+\-\s/ {
                     if $in-list && $list-ordered {
                         $chunk ~~ s/^\s+\d+\.?\s+//;
                         @list-items.push(self.new($chunk));
@@ -295,7 +306,7 @@ class Text::Markdown::Document {
                         $chunk = '';
                     }
                 }
-                elsif $l ~~ /^\s+\d+\.?\s/ {
+                elsif !$in-fenced && $l ~~ /^\s+\d+\.?\s/ {
                     if $in-list && !$list-ordered {
                         $chunk ~~ s/^\s+\-\s+//;
                         @list-items.push(self.new($chunk));
@@ -311,19 +322,37 @@ class Text::Markdown::Document {
                         $chunk = '';
                     }
                 }
-                elsif $in-list && $l ~~ /^\S/ {
+                elsif !$in-fenced && $l ~~ /^\*\s/ {
+                    if $in-list && $list-ordered {
+                        $chunk ~~ s/^\*\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                        @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
+                        @list-items = ();
+                    }
+                    $in-list = True;
+                    $list-ordered = False;
+                    if $chunk {
+                        $chunk ~~ s/^\*\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                    }
+                }
+                elsif !$in-fenced && $in-list && $l ~~ /^\S/ {
                     $in-list = False;
                     if $list-ordered {
                         $chunk ~~ s/^\s+\d+\.?\s+//;
                     }
                     else {
                         $chunk ~~ s/^\s+\-\s+//;
+                        $chunk ~~ s/^\*\s+//;
                     }
                     @list-items.push(self.new($chunk));
                     $chunk = '';
                     @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
                     @list-items = ();
                 }
+                $in-fenced = not $in-fenced if $l ~~ /^^ '```' /;
                 $chunk ~= "\n" if $chunk;
                 $chunk ~= $l;
             }

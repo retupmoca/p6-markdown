@@ -94,4 +94,8 @@ class Text::Markdown::to::HTML {
     multi method render(Text::Markdown::HtmlTag $r) {
       $r.tag;
     }
+
+    multi method render(Seq $values) {
+        $values.map({ self.render($_) }).join('');
+    }
 }
