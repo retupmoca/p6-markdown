@@ -59,7 +59,7 @@ class Text::Markdown::to::HTML {
         '<blockquote>' ~ $ret ~ '</blockquote>';
     }
 
-    multi method render(Text::Markdown::Link $r) { 
+    multi method render(Text::Markdown::Link $r) {
         my $url = $r.url;
         unless $url {
             $url = $!document.references{$r.ref};
@@ -71,14 +71,14 @@ class Text::Markdown::to::HTML {
       '< href="mailto:' ~ $r.url ~ '">' ~ $r.url ~ '</a>';
     }
 
-    multi method render(Text::Markdown::Image $r) { 
+    multi method render(Text::Markdown::Image $r) {
         my $url = $r.url;
         unless $url {
             $url = $!document.references{$r.ref};
         }
         '<img src="' ~ $url ~ '" alt="' ~ $r.text ~ '" />';
     }
-    multi method render(Text::Markdown::Emphasis $r) { 
+    multi method render(Text::Markdown::Emphasis $r) {
         if $r.level == 1 {
             '<em>' ~ $r.text ~ '</em>';
         }
@@ -95,4 +95,3 @@ class Text::Markdown::to::HTML {
       $r.tag;
     }
 }
-

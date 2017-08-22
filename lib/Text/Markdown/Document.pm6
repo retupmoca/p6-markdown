@@ -127,10 +127,8 @@ class Text::Markdown::Document {
     method Str { @.items>>.Str.join }
 
     multi method render($class) {
-        my $c = $class;
-        $c = $class.new unless defined($class);
-
-        return $c.render(self);
+        my $c = $class // $class.new;
+        $c.render(self);
     }
 
     method parse-inline($chunk) {
