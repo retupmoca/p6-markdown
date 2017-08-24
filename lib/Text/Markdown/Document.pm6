@@ -1,5 +1,3 @@
-use HTML::Escape;
-
 class Text::Markdown::Paragraph {
     has @.items;
 
@@ -239,7 +237,7 @@ class Text::Markdown::Document {
         elsif $chunk.lines.first ~~ /^^'`'+/ && $chunk.lines.tail ~~ /^^'`'+/ {
             if $chunk.lines.elems > 1 {
                 $chunk ~~ s:g/^^'`'+(\n || $$ )//;
-                return Text::Markdown::CodeBlock.new(:text(escape-html($chunk.trim)));
+                return Text::Markdown::CodeBlock.new(:text($chunk.trim));
             } else {
                 return self.parse-inline($chunk);
             }
