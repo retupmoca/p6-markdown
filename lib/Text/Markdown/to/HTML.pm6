@@ -1,3 +1,4 @@
+use HTML::Escape;
 use Text::Markdown::Document;
 
 class Text::Markdown::to::HTML {
@@ -25,11 +26,11 @@ class Text::Markdown::to::HTML {
     multi method render(Str $s) { $s }
 
     multi method render(Text::Markdown::Code $c) {
-        '<code>' ~ $c.text ~ '</code>';
+        '<code>' ~ escape-html($c.text) ~ '</code>';
     }
 
     multi method render(Text::Markdown::CodeBlock $c) {
-        '<pre><code>' ~ $c.text ~ '</code></pre>';
+        '<pre><code>' ~ escape-html($c.text) ~ '</code></pre>';
     }
 
     multi method render(Text::Markdown::List $l) {
