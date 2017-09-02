@@ -227,6 +227,7 @@ class Text::Markdown::Document {
     }
 
     method item-from-chunk($chunk is rw) {
+	say $chunk;
         if $chunk ~~ /^(\#+)/ {
             my $level = $0.chars; $chunk ~~ s/^\#+\s+//;
             $chunk ~~ s/\s+\#+$//;
@@ -291,6 +292,7 @@ class Text::Markdown::Document {
         my $list-ordered;
         my @list-items;
         for @lines -> $l {
+
             if !$in-list && !$in-fenced && $l ~~ /^\s*$/ {
                 @items.push(self.item-from-chunk($chunk)) if $chunk.chars;
                 $chunk = '';

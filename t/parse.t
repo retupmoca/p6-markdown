@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 168;
+plan 176;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -304,7 +304,7 @@ is $document.items[0].items[0], 'My paragraph.', '...with the right data';
 
 
 ok $document.items[1] ~~ Text::Markdown::CodeBlock, 'second element is a code block';
-is $document.items[1].text, ' my $code = self; ', '...with the right data';
+is $document.items[1].text, 'my $code = self;', '...with the right data';
 
 ok $document.items[2] ~~ Text::Markdown::Paragraph, 'third element is a paragraph';
 is $document.items[2].items[0], 'The list is:', '...with the right data';
