@@ -2,11 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-<<<<<<< HEAD
 plan 163;
-=======
-plan 172;
->>>>>>> ce53b01bb933889aeefc478624229ed0eef4802c
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
