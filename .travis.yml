@@ -7,3 +7,7 @@ perl6:
   - '2017.06'
   - '2017.01'
   - '2016.12'
+
+install:
+  - rakudobrew build zef
+  - zef install HTML::Escape

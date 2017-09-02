@@ -227,7 +227,7 @@ class Text::Markdown::Document {
     }
 
     method item-from-chunk($chunk is rw) {
-	say $chunk;
+
         if $chunk ~~ /^(\#+)/ {
             my $level = $0.chars; $chunk ~~ s/^\#+\s+//;
             $chunk ~~ s/\s+\#+$//;

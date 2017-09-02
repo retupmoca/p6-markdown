@@ -309,7 +309,6 @@ is $document.items[1].text, 'my $code = self;', '...with the right data';
 ok $document.items[2] ~~ Text::Markdown::Paragraph, 'third element is a paragraph';
 is $document.items[2].items[0], 'The list is:', '...with the right data';
 
-say $document.items[3];
 ok $document.items[3] ~~ Text::Markdown::List, 'fourth element is a list';
 ok not $document.items[3].numbered, '...which is not ordered';
 ok $document.items[3].items == 3, '...with three items';
