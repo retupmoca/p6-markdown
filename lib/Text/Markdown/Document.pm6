@@ -151,7 +151,7 @@ class Text::Markdown::Document {
 
             for @tmp -> $_ is rw {
                 if $_ ~~ Str {
-                    # regex stolen shamlessly from masak's Text::Markdown
+                    # regex stolen shamelessly from masak's Text::Markdown
                     if  $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Image.new(:text(~$0), :url(~$1)));
