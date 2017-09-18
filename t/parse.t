@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 159;
+plan 176;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -30,8 +30,11 @@ is $document.items[1].items[0], 'This is a simple markdown document.'
 ok $document.items[2] ~~ Text::Markdown::Rule, 'third element is a rule';
 
 ok $document.items[3] ~~ Text::Markdown::Paragraph, 'fourth element is a paragraph';
-is $document.items[3].items[0], 'It has two paragraphs.'
-   , '...with the right data';
+is $document.items[3].items[0], 'It has two paragraphs.', '...with the right data';
+
+is $document.items-of-type("Paragraph").elems, 2, "Correct number of paragraphs";
+
+## next text with lists
 
 $text = q:to/TEXT/;
  -  List One
@@ -92,6 +95,7 @@ ok $li ~~ Text::Markdown::List, 'fifth element is a list';
 ok $li.numbered, '...which is ordered';
 ok $li.items == 2, '...with two items';
 
+## next text with lists
 $text = q:to/TEXT/;
 This is a *paragraph* with **many** `different` ``inline` elements``.
 [Links](http://google.com), for [example][], as well as ![Images](/bad/path.jpg)
@@ -147,6 +151,8 @@ is $p.items[11].ref, 'example', '...with correct ref';
 
 is $p.items[12], ', as well as ', 'seventh text chunk';
 
+is $p.items-of-type("Image").elems, 2, "Correct number of images";
+
 ok $p.items[13] ~~ Text::Markdown::Image, 'first image';
 is $p.items[13].url, '/bad/path.jpg', '...with correct link';
 is $p.items[13].text, 'Images', '...with correct text';
@@ -169,6 +175,7 @@ ok !$p.items[17].ref, '...with correct ref';
 is $document.references.elems, 2, 'got correct reference count';
 is $document.references<example>, 'http://example.com', 'first ref';
 is $document.references<Reference>, '/another/bad/image.jpg', 'second ref';
+is $document.items-of-type("Paragraph").elems, 1, "Correct number of paragraphs";
 
 $text = q:to/TEXT/;
 This one tests links like <http://example.com> or <http://a> or
@@ -236,6 +243,7 @@ is $p.items[4].tag, '</b>', 'tag content is correct';
 ok $p.items[5] ~~ Text::Markdown::HtmlTag, 'tags are parsed';
 is $p.items[5].tag, '</span>', 'tag content is correct';
 is $p.items[6], ' or block elements like', 'text before html tags';
+is $p.items-of-type("HtmlTag").elems, 4, "Correct number of elements";
 
 $p = $document.items[2];
 is $p.items.elems, 26, 'correct number of elements in html block';
@@ -272,3 +280,38 @@ for @spaces -> $position {
   ok $p.items[$position] ~~ /\s+/, 'white spaces detected correctly';
 }
 
+$text = q:to/TEXT/;
+My paragraph.
+
+```
+my $code = self;
+```
+
+The list is:
+
+* First!
+* Second!
+* `third!`
+
+The end.
+TEXT
+
+$document = Text::Markdown::Document.new($text);
+ok $document ~~ Text::Markdown::Document, 'Able to parse';
+is $document.items.elems, 5, 'has correct number of items';
+ok $document.items[0] ~~ Text::Markdown::Paragraph, 'first element is a paragraph';
+is $document.items[0].items[0], 'My paragraph.', '...with the right data';
+
+
+ok $document.items[1] ~~ Text::Markdown::CodeBlock, 'second element is a code block';
+is $document.items[1].text, 'my $code = self;', '...with the right data';
+
+ok $document.items[2] ~~ Text::Markdown::Paragraph, 'third element is a paragraph';
+is $document.items[2].items[0], 'The list is:', '...with the right data';
+
+ok $document.items[3] ~~ Text::Markdown::List, 'fourth element is a list';
+ok not $document.items[3].numbered, '...which is not ordered';
+ok $document.items[3].items == 3, '...with three items';
+
+ok $document.items[4] ~~ Text::Markdown::Paragraph, 'fifth element is a paragraph';
+is $document.items[4].items[0], 'The end.', '...with the right data';

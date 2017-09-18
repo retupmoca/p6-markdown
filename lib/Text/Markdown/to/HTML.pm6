@@ -1,3 +1,4 @@
+use HTML::Escape;
 use Text::Markdown::Document;
 
 class Text::Markdown::to::HTML {
@@ -25,11 +26,11 @@ class Text::Markdown::to::HTML {
     multi method render(Str $s) { $s }
 
     multi method render(Text::Markdown::Code $c) {
-        '<code>' ~ $c.text ~ '</code>';
+        '<code>' ~ escape-html($c.text) ~ '</code>';
     }
 
     multi method render(Text::Markdown::CodeBlock $c) {
-        '<pre><code>' ~ $c.text ~ '</code></pre>';
+        '<pre><code>' ~ escape-html($c.text) ~ '</code></pre>';
     }
 
     multi method render(Text::Markdown::List $l) {
@@ -59,7 +60,7 @@ class Text::Markdown::to::HTML {
         '<blockquote>' ~ $ret ~ '</blockquote>';
     }
 
-    multi method render(Text::Markdown::Link $r) { 
+    multi method render(Text::Markdown::Link $r) {
         my $url = $r.url;
         unless $url {
             $url = $!document.references{$r.ref};
@@ -71,14 +72,14 @@ class Text::Markdown::to::HTML {
       '< href="mailto:' ~ $r.url ~ '">' ~ $r.url ~ '</a>';
     }
 
-    multi method render(Text::Markdown::Image $r) { 
+    multi method render(Text::Markdown::Image $r) {
         my $url = $r.url;
         unless $url {
             $url = $!document.references{$r.ref};
         }
         '<img src="' ~ $url ~ '" alt="' ~ $r.text ~ '" />';
     }
-    multi method render(Text::Markdown::Emphasis $r) { 
+    multi method render(Text::Markdown::Emphasis $r) {
         if $r.level == 1 {
             '<em>' ~ $r.text ~ '</em>';
         }
@@ -94,5 +95,8 @@ class Text::Markdown::to::HTML {
     multi method render(Text::Markdown::HtmlTag $r) {
       $r.tag;
     }
-}
 
+    multi method render(Seq $values) {
+        $values.map({ self.render($_) }).join('');
+    }
+}

@@ -3,6 +3,10 @@ class Text::Markdown::Paragraph {
 
     # TODO: wrapping?
     method Str { @.items>>.Str.join ~ "\n\n" }
+
+    method items-of-type( Str $type ) {
+	return  self.items.grep(  { .^name ~~ / «$type» / } );
+    }
 }
 
 class Text::Markdown::Code {
@@ -133,6 +137,10 @@ class Text::Markdown::Document {
         return $c.render(self);
     }
 
+    method items-of-type( Str $type ) {
+	return  self.items.grep(  { .^name ~~ / «$type» / } );
+    }
+
     method parse-inline($chunk) {
         my @ret = $chunk;
         my $changed = False;
@@ -143,28 +151,8 @@ class Text::Markdown::Document {
 
             for @tmp -> $_ is rw {
                 if $_ ~~ Str {
-                    # regex stolen shamlessly from masak's Text::Markdown
-                    if $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(2)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-                    # regex stolen shamlessly from masak's Text::Markdown
-                    elsif $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-                    # regex stolen shamlessly from masak's Text::Markdown
-                    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-                    elsif $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
+                    # regex stolen shamelessly from masak's Text::Markdown
+                    if  $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Image.new(:text(~$0), :url(~$1)));
                         @ret.push(~$2);
@@ -206,6 +194,24 @@ class Text::Markdown::Document {
                         @ret.push(~$1);
                         $changed = True;
                     }
+		    elsif $_ ~~ s[ ('**'||'__') <?before \S> (.+?<[*_]>*) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(2)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+                    elsif  $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
+		    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
                     else {
                         @ret.push($_);
                     }
@@ -221,6 +227,7 @@ class Text::Markdown::Document {
     }
 
     method item-from-chunk($chunk is rw) {
+
         if $chunk ~~ /^(\#+)/ {
             my $level = $0.chars; $chunk ~~ s/^\#+\s+//;
             $chunk ~~ s/\s+\#+$//;
@@ -235,6 +242,14 @@ class Text::Markdown::Document {
             $chunk ~~ s:g/^^\>\s+//;
             return Text::Markdown::Blockquote.new(
                                       :items(self.new($chunk).items));
+        }
+        elsif $chunk.lines.first ~~ /^^'`'+/ && $chunk.lines.tail ~~ /^^'`'+/ {
+            if $chunk.lines.elems > 1 {
+                $chunk ~~ s:g/^^'`'+(\n || $$ )//;
+                return Text::Markdown::CodeBlock.new(:text($chunk.trim));
+            } else {
+                return self.parse-inline($chunk);
+            }
         }
         elsif $chunk.lines == 1 && $chunk ~~ /^\-\-\-/ {
             return Text::Markdown::Rule.new;
@@ -273,15 +288,17 @@ class Text::Markdown::Document {
         my $chunk = '';
         my @items;
         my $in-list;
+        my $in-fenced = False;
         my $list-ordered;
         my @list-items;
         for @lines -> $l {
-            if !$in-list && $l ~~ /^\s*$/ {
+
+            if !$in-list && !$in-fenced && $l ~~ /^\s*$/ {
                 @items.push(self.item-from-chunk($chunk)) if $chunk.chars;
                 $chunk = '';
             }
             else {
-                if $l ~~ /^\s+\-\s/ {
+                if !$in-fenced && $l ~~ /^\s+\-\s/ {
                     if $in-list && $list-ordered {
                         $chunk ~~ s/^\s+\d+\.?\s+//;
                         @list-items.push(self.new($chunk));
@@ -297,7 +314,7 @@ class Text::Markdown::Document {
                         $chunk = '';
                     }
                 }
-                elsif $l ~~ /^\s+\d+\.?\s/ {
+                elsif !$in-fenced && $l ~~ /^\s+\d+\.?\s/ {
                     if $in-list && !$list-ordered {
                         $chunk ~~ s/^\s+\-\s+//;
                         @list-items.push(self.new($chunk));
@@ -313,19 +330,37 @@ class Text::Markdown::Document {
                         $chunk = '';
                     }
                 }
-                elsif $in-list && $l ~~ /^\S/ {
+                elsif !$in-fenced && $l ~~ /^\*\s/ {
+                    if $in-list && $list-ordered {
+                        $chunk ~~ s/^\*\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                        @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
+                        @list-items = ();
+                    }
+                    $in-list = True;
+                    $list-ordered = False;
+                    if $chunk {
+                        $chunk ~~ s/^\*\s+//;
+                        @list-items.push(self.new($chunk));
+                        $chunk = '';
+                    }
+                }
+                elsif !$in-fenced && $in-list && $l ~~ /^\S/ {
                     $in-list = False;
                     if $list-ordered {
                         $chunk ~~ s/^\s+\d+\.?\s+//;
                     }
                     else {
                         $chunk ~~ s/^\s+\-\s+//;
+                        $chunk ~~ s/^\*\s+//;
                     }
                     @list-items.push(self.new($chunk));
                     $chunk = '';
                     @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered)));
                     @list-items = ();
                 }
+                $in-fenced = not $in-fenced if $l ~~ /^^ '```' /;
                 $chunk ~= "\n" if $chunk;
                 $chunk ~= $l;
             }

@@ -1,10 +1,10 @@
 {
     "perl" : "6.*",
     "name" : "Text::Markdown",
-    "version" : "1.0.0",
+    "version" : "1.0.2",
     "author" : "github:retupmoca",
     "description" : "Markdown parser / HTML generator",
-    "depends" : [],
+    "depends" : [ "HTML::Escape" ],
     "provides" : {
         "Text::Markdown" : "lib/Text/Markdown.pm6",
         "Text::Markdown::Document" : "lib/Text/Markdown/Document.pm6",

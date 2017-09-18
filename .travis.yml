@@ -2,10 +2,11 @@ branches:
   except:
     - gh-pages
 language: perl6
-sudo: false
 perl6:
   - latest
-#  - 2015.09
+  - '2017.06'
+
+
 install:
-  - rakudobrew build-panda
-  - panda installdeps .
+  - rakudobrew build zef
+  - zef install HTML::Escape
