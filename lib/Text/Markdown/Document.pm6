@@ -152,13 +152,7 @@ class Text::Markdown::Document {
             for @tmp -> $_ is rw {
                 if $_ ~~ Str {
                     # regex stolen shamelessly from masak's Text::Markdown
-		    if $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-                    elsif $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
+                    if $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Image.new(:text(~$0), :url(~$1)));
                         @ret.push(~$2);
@@ -186,6 +180,12 @@ class Text::Markdown::Document {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Link.new(:text(~$0), :url(~$0)));
                         @ret.push(~$1);
+                        $changed = True;
+                    }
+		    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
+                        @ret.push(~$2);
                         $changed = True;
                     }
                     elsif $_ ~~ s/ \< ( .*? \@ .*? ) \> (.*) // {
