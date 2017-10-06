@@ -152,7 +152,7 @@ class Text::Markdown::Document {
             for @tmp -> $_ is rw {
                 if $_ ~~ Str {
                     # regex stolen shamelessly from masak's Text::Markdown
-                    if  $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
+                    if $_ ~~ s/ \! \[ (.+?) \] \( (.+?) \) (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Image.new(:text(~$0), :url(~$1)));
                         @ret.push(~$2);
@@ -182,6 +182,12 @@ class Text::Markdown::Document {
                         @ret.push(~$1);
                         $changed = True;
                     }
+		    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
+                        @ret.push($_);
+                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
+                        @ret.push(~$2);
+                        $changed = True;
+                    }
                     elsif $_ ~~ s/ \< ( .*? \@ .*? ) \> (.*) // {
                         @ret.push($_);
                         @ret.push(Text::Markdown::EmailLink.new(:url(~$0)));
@@ -203,12 +209,6 @@ class Text::Markdown::Document {
                     elsif  $_ ~~ s[ ('*'||'_') <?before \S> (.+?) <?after \S> $0 (.*) ] = "" {
                         @ret.push($_);
                         @ret.push(Text::Markdown::Emphasis.new(:text(~$1), :level(1)));
-                        @ret.push(~$2);
-                        $changed = True;
-                    }
-		    elsif $_ ~~ s/ ('`'+) (.+?) <!after '`'> $0 <!before '`'> (.*) // {
-                        @ret.push($_);
-                        @ret.push(Text::Markdown::Code.new(:text(~$1)));
                         @ret.push(~$2);
                         $changed = True;
                     }

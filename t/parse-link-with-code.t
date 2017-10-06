@@ -16,6 +16,3 @@ is $document.items.elems, 1, 'has correct number of items';
 my $p = $document.items[0];
 ok $p ~~ Text::Markdown::Paragraph, 'It is a Paragraph';
 is $p.items[0] ~~ Text::Markdown::Link, True, "First element is a link";
-# dd $p.items;
-
-

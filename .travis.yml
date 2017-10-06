@@ -1,12 +1,13 @@
 branches:
   except:
     - gh-pages
+
 language: perl6
+
 perl6:
   - latest
-  - '2017.06'
-
+  - '2017.09'
 
 install:
   - rakudobrew build zef
-  - zef install HTML::Escape
+  - zef --deps-only install .

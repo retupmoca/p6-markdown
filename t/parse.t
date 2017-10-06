@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 176;
+plan 182;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -315,3 +315,17 @@ ok $document.items[3].items == 3, '...with three items';
 
 ok $document.items[4] ~~ Text::Markdown::Paragraph, 'fifth element is a paragraph';
 is $document.items[4].items[0], 'The end.', '...with the right data';
+
+$text = q:to/TEXT/;
+My `VALUE_WITH_UNDERSCORE`.
+
+My `</body>`.
+TEXT
+
+$document = Text::Markdown::Document.new($text);
+ok $document ~~ Text::Markdown::Document, 'Able to parse';
+is $document.items.elems, 2, 'has correct number of items';
+ok $document.items[0].items[1] ~~ Text::Markdown::Code, 'code chunk is parsed';
+is $document.items[0].items[1], '`VALUE_WITH_UNDERSCORE`', 'value is correct';
+ok $document.items[1].items[1] ~~ Text::Markdown::Code, 'tag is parsed';
+is $document.items[1].items[1], '`</body>`', 'value is correct';
