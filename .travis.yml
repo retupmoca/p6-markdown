@@ -1,13 +1,10 @@
-branches:
-  except:
-    - gh-pages
-
-language: perl6
-
-perl6:
-  - latest
-  - '2017.09'
+services:
+  - docker
 
 install:
-  - rakudobrew build zef
-  - zef --deps-only install .
+  - docker pull jjmerelo/test-perl6
+  - docker images
+  - docker run -t --entrypoint="/bin/sh" jjmerelo/test-perl6 -c "perl6 --version; which zef "
+
+script:
+  - docker run -t -v  /home/travis/build/JJ/p6-markdown:/test jjmerelo/test-perl6
