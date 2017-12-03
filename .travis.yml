@@ -7,4 +7,4 @@ install:
   - docker run -t --entrypoint="/bin/sh" jjmerelo/test-perl6 -c "perl6 --version; which zef "
 
 script:
-  - docker run -t -v  /home/travis/build/JJ/p6-markdown:/test jjmerelo/test-perl6
+  - docker run -t -v  /home/travis/build/retupmoca/p6-markdown:/test jjmerelo/test-perl6
