@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 182;
+plan 184;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -53,11 +53,14 @@ $text = q:to/TEXT/;
  1. ol One
  2. ol Two
 
+* Other List One
+* Other List Two
+
 TEXT
 
 $document = Text::Markdown::Document.new($text);
 ok $document ~~ Text::Markdown::Document, 'Able to parse';
-is $document.items.elems, 5, 'has correct number of items';
+is $document.items.elems, 6, 'has correct number of items';
 
 my $li = $document.items[0];
 ok $li ~~ Text::Markdown::List, 'first element is a list';
@@ -94,6 +97,10 @@ $li = $document.items[4];
 ok $li ~~ Text::Markdown::List, 'fifth element is a list';
 ok $li.numbered, '...which is ordered';
 ok $li.items == 2, '...with two items';
+
+$li = $document.items[5];
+ok $li ~~ Text::Markdown::List, 'sixth element is a list';
+ok $li.items == 2;
 
 ## next text with lists
 $text = q:to/TEXT/;

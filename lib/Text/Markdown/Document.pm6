@@ -371,6 +371,7 @@ class Text::Markdown::Document {
         }
         else {
             $chunk ~~ s/^\s+\-\s+//;
+            $chunk ~~ s/^\*\s+//;
         }
         @list-items.push(self.new($chunk)) if $chunk && $in-list;
         @items.push(Text::Markdown::List.new(:items(@list-items), :numbered($list-ordered))) if @list-items;
