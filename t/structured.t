@@ -22,4 +22,12 @@ isa-ok( $md.document.items[2], Text::Markdown::Heading, "Second level OK");
 is( $md.document.items[2].level, 2, "Level heading OK");
 isa-ok( $md.document.items[3], Text::Markdown::List, "Third object is a list");
 is( $md.document.items[3].items.elems, 6, "List has the correct length");
+
+$text = q:to/TEXT/;
+* a list item
+TEXT
+
+$md = parse-markdown( $text );
+is( $md.document.items.first.items.elems, 1, "There's one element in the list");
+
 done-testing;
