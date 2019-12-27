@@ -4,7 +4,7 @@
   "version": "1.1.0",
   "perl": "6.*",
   "authors": [
-    "Andrew Egler",
+    "Andrew Egeler",
     "JJ Merelo"
   ],
   "auth": "github:retupmoca",
@@ -16,6 +16,6 @@
     "Text::Markdown::Document": "lib/Text/Markdown/Document.pm6",
     "Text::Markdown::to::HTML": "lib/Text/Markdown/to/HTML.pm6"
   },
-  "license": "Artistic-2.0",
+  "license": "MIT",
   "source-url": "git://github.com/retupmoca/p6-markdown.git"
 }
