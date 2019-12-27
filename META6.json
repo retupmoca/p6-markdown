@@ -1,14 +1,21 @@
 {
-    "perl" : "6.*",
-    "name" : "Text::Markdown",
-    "version" : "1.0.2",
-    "author" : "github:retupmoca",
-    "description" : "Markdown parser / HTML generator",
-    "depends" : [ "HTML::Escape" ],
-    "provides" : {
-        "Text::Markdown" : "lib/Text/Markdown.pm6",
-        "Text::Markdown::Document" : "lib/Text/Markdown/Document.pm6",
-        "Text::Markdown::to::HTML" : "lib/Text/Markdown/to/HTML.pm6"
-    },
-    "source-url" : "git://github.com/retupmoca/p6-markdown.git"
+  "name": "Text::Markdown",
+  "description": "Markdown parser / HTML generator",
+  "version": "1.0.2",
+  "perl": "6.*",
+  "authors": [
+    "Andrew Egler",
+    "JJ Merelo"
+  ],
+  "auth": "github:retupmoca",
+  "depends": [
+    "HTML::Escape"
+  ],
+  "provides": {
+    "Text::Markdown": "lib/Text/Markdown.pm6",
+    "Text::Markdown::Document": "lib/Text/Markdown/Document.pm6",
+    "Text::Markdown::to::HTML": "lib/Text/Markdown/to/HTML.pm6"
+  },
+  "license": "Artistic-2.0",
+  "source-url": "git://github.com/retupmoca/p6-markdown.git"
 }
