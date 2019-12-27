@@ -9,6 +9,7 @@ class Text::Markdown::Paragraph {
     }
 }
 
+
 class Text::Markdown::Code {
     has $.text;
 
@@ -282,7 +283,6 @@ class Text::Markdown::Document {
 
     submethod BUILD(:$text) {
         return unless $text;
-
         my @lines = $text.lines;
 
         my $chunk = '';
@@ -292,7 +292,6 @@ class Text::Markdown::Document {
         my $list-ordered;
         my @list-items;
         for @lines -> $l {
-
             if !$in-list && !$in-fenced && $l ~~ /^\s*$/ {
                 @items.push(self.item-from-chunk($chunk)) if $chunk.chars;
                 $chunk = '';
