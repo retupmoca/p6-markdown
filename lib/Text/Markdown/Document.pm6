@@ -19,6 +19,7 @@ class Text::Markdown::Code {
 
 class Text::Markdown::CodeBlock {
     has $.text;
+    has $.lang;
 
     method Str {
         my $ret;
@@ -246,8 +247,25 @@ class Text::Markdown::Document {
         }
         elsif $chunk.lines.first ~~ /^^'`'+/ && $chunk.lines.tail ~~ /^^'`'+/ {
             if $chunk.lines.elems > 1 {
-                $chunk ~~ s:g/^^'`'+(\n || $$ )//;
-                return Text::Markdown::CodeBlock.new(:text($chunk.trim));
+                my regex fenced-block {
+                    ^^
+                    $<fence>=['`' ** 3..*] ' '*       # opening ```
+                    [$<lang>=<[\w # \. + -]>*]? ' '*  # optional code's language
+                    \n $<code>=(.*?)                  # block's body
+                    <?after \n> $<fence>              # closing ```
+                    ' '*
+                    $$
+                }
+
+                my $lang;
+                $chunk.match(/<fenced-block>/);
+
+                given $/<fenced-block> {
+                    $chunk = .<code>.trim;
+                    $lang  = .<lang>.trim;
+                }
+
+                return Text::Markdown::CodeBlock.new(:text($chunk), :$lang);
             } else {
                 return self.parse-inline($chunk);
             }

@@ -30,7 +30,8 @@ class Text::Markdown::to::HTML {
     }
 
     multi method render(Text::Markdown::CodeBlock $c) {
-        '<pre><code>' ~ escape-html($c.text) ~ '</code></pre>';
+        my $lang-class = $c.lang ?? ' class="' ~ $c.lang ~ '"' !! '';
+        "<pre><code{$lang-class}>" ~ escape-html($c.text) ~ '</code></pre>';
     }
 
     multi method render(Text::Markdown::List $l) {

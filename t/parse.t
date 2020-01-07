@@ -2,7 +2,7 @@ use v6;
 use Text::Markdown::Document;
 use Test;
 
-plan 184;
+plan 190;
 
 my $text = q:to/TEXT/;
 ## Markdown Test ##
@@ -100,7 +100,32 @@ ok $li.items == 2, '...with two items';
 
 $li = $document.items[5];
 ok $li ~~ Text::Markdown::List, 'sixth element is a list';
-ok $li.items == 2;
+ok $li.items == 2, '...with two items';
+
+## next text with fenced code blocks
+$text = q:to/TEXT/;
+```
+# unknown
+code
+```
+
+```raku
+# raku code
+```
+
+TEXT
+
+$document = Text::Markdown::Document.new($text);
+ok $document ~~ Text::Markdown::Document, 'Able to parse';
+is $document.items.elems, 2, 'has correct number of items';
+
+$ci = $document.items[0];
+ok $ci ~~ Text::Markdown::CodeBlock, 'first element is a code block';
+is $ci.text, "# unknown\ncode", '...with correct data';
+
+$ci = $document.items[1];
+ok $ci ~~ Text::Markdown::CodeBlock, 'second element is a code block';
+is $ci.text, "# raku code", '...with correct data';
 
 ## next text with lists
 $text = q:to/TEXT/;
