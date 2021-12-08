@@ -7,7 +7,7 @@
     "Andrew Egeler",
     "JJ Merelo"
   ],
-  "auth": "github:retupmoca",
+  "auth": "zef:jjmerelo",
   "depends": [
     "HTML::Escape"
   ],
