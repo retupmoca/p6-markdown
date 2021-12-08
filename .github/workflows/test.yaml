@@ -7,8 +7,6 @@ jobs:
       image: jjmerelo/raku-test:latest
       options: --user root
     steps:
-      - name: Create dirs
-        run:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install modules
