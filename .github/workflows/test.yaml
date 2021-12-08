@@ -5,13 +5,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: jjmerelo/raku-test:latest
-      options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install modules
-        run: su - raku  && zef install --deps-only .
+        run: zef install --deps-only .
       - name: Test
-        run: su - raku && zef --debug test .
+        run: zef --debug test .
 
 
