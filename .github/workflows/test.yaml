@@ -1,0 +1,16 @@
+name: "Test"
+on: [ push, pull_request ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: jjmerelo/raku-test:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install modules
+        run: zef install --deps-only .
+      - name: Test
+        run: zef --debug test .
+
+
