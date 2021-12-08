@@ -7,11 +7,13 @@ jobs:
       image: jjmerelo/raku-test:latest
       options: --user root
     steps:
+      - name: Create dirs
+        run:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install modules
-        run: ls && zef install --deps-only .
+        run: su - raku  && zef install --deps-only .
       - name: Test
-        run: zef --debug test .
+        run: su - raku && zef --debug test .
 
 
