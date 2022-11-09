@@ -1,7 +1,7 @@
 Name
 ====
 
-`Text::Markdown`, a Markdown parsing module for Perl6.
+`Text::Markdown`, a Markdown parsing module for Raku.
 
 Synopsis
 ========
