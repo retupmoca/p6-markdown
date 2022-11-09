@@ -64,8 +64,8 @@ Who
 ===
 
 Initial version by [Andrew Egeler](https://github.com/retupmoca), with 
-extensive additions by [JMERELO](https://github.com/JJ) and [Altai-man]
-(https://github.com/Altai-man). Some help from [Luis Uceta](https://github.com/uzluisf)
+extensive additions by [JMERELO](https://github.com/JJ) and
+[Altai-man](https://github.com/Altai-man). Some help from [Luis Uceta](https://github.com/uzluisf)
 
 Want to lend a hand?
 ====================
