@@ -8,3 +8,5 @@ workspace.xml
 
 #fez
 sdist/
+
+.racoco
