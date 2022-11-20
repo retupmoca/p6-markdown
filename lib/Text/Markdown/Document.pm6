@@ -140,7 +140,7 @@ class Text::Markdown::Document {
     }
 
     method items-of-type( Str $type ) {
-	return  self.items.grep(  { .^name ~~ / «$type» / } );
+	    return  self.items.grep(  { .^name ~~ / «$type» / } );
     }
 
     method parse-inline($chunk) {
