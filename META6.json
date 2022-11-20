@@ -1,13 +1,13 @@
 {
   "name": "Text::Markdown",
   "description": "Markdown parser / HTML generator",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "perl": "6.*",
   "authors": [
     "Andrew Egeler",
     "JJ Merelo"
   ],
-  "auth": "zef:JJMERELO",
+  "auth": "zef:jjmerelo",
   "depends": [
     "HTML::Escape"
   ],

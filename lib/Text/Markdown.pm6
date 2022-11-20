@@ -43,8 +43,6 @@ our sub parse-markdown-from-file(Str $filename) is export {
 
 C«Text::Markdown», a Markdown parsing module for Perl6.
 
-[![Build Status](https://travis-ci.org/retupmoca/p6-markdown.svg?branch=master)](https://travis-ci.org/retupmoca/p6-markdown)
-
 =head1 Synopsis
 
 =begin code
